@@ -24,6 +24,11 @@ function addMessage(message: string, container: HTMLElement) : void {
   container.appendChild(m);
 }
 
+function addLogsMessage(success: boolean, succMessage: string, errMessage: string) {
+  let message = success ? succMessage : errMessage;
+  addMessage(message, logsContainer);
+}
+
 function padTo2Digits(n: number) : string {
   return n.toString().padStart(2, '0');
 }
@@ -45,6 +50,10 @@ function formattedDate() : string {
   return d + " " + t;
 }
 
+function fromHex(hexStr: string) : ArrayBuffer {
+  return new Uint8Array(hexStr.match(/../g).map(h=>parseInt(h,16))).buffer;
+}
+
 function getV(v: number) : number {
   if (v <= 1) {
     return v;
@@ -53,30 +62,20 @@ function getV(v: number) : number {
   }
 }
 
-function verifySign(signature: {v: number, r: string, s: string}, message: string) : {signature: string, signed: boolean} {
-  let sigV = getV(signature.v);
-  let s = new secp.Signature(BigInt("0x" + signature.r), BigInt("0x" + signature.s), sigV);
-  let messageHash = keccak256(message);
-  let publicKey = s.recoverPublicKey(messageHash);
-  return {signature: s.toCompactHex(), signed: secp.verify(s.toCompactHex(), messageHash, publicKey.toHex())};
+function verifySign(s: {v: number, r: string, s: string}, message: string, pubKey: string) : {signature: string, signed: boolean} {
+  let messageHash = keccak256(fromHex(message));
+  let sigV = getV(s.v);
+  let signature = new secp.Signature(BigInt("0x" + s.r), BigInt("0x" + s.s), sigV);
+
+  return {signature: signature.toCompactHex(), signed: secp.verify(signature, messageHash, pubKey.toLowerCase())};
 }
 
-function verifyMessSign(s: {v: number, r: string, s: string}, succMessage: string, errMessage: string, address: string, m: any, f: (options: {}) => {}) : void {
+function verifyMessSign(s: {v: number, r: string, s: string}, address: string, m: any, f: (options: {}) => {}) : {signature: string, signed: boolean} {
   let sigV = getV(s.v);
-  let message: string;
   let signature = "0x" + s.r + s.s + (sigV ? "01" : "00");
-
   let recAddress = f({data: m, signature: signature, version: "V4"});
-  console.log(recAddress);
-  console.log(address);
 
-  if(recAddress == address.toLowerCase()) {
-    message = succMessage + signature;
-    addMessage(message, logsContainer);
-  } else {
-    message = errMessage;
-    addMessage(message, logsContainer);
-  }
+  return {signature: signature, signed: recAddress == address.toLowerCase()};
 }
 
 function main() : void {
@@ -120,21 +119,14 @@ function main() : void {
   });
 
   txSignBtn.addEventListener("click", async () => {
-    let message: string;
-
     if(appEth) {
       data= signData.value;
-
+      let { publicKey } = await appEth.getAddress(path.value);
       let res = await appEth.signTransaction(path.value, data);
-      let {signature, signed} = verifySign(res, data);
-
-      if(signed) {
-        message = formattedDate() + "&nbsp;" + "Transaction successfully signed. Signature - 0x" + signature;
-        addMessage(message, logsContainer);
-      } else {
-        message = formattedDate() + "&nbsp;" + "Error. Invalid signature"
-        addMessage(message, logsContainer);
-      }
+      let {signature, signed} = verifySign(res, data, publicKey);
+      let succMessage = formattedDate() + "&nbsp;" + "Transaction successfully signed. Signature - 0x" + signature;
+      let errMessage = formattedDate() + "&nbsp;" + "Error. Invalid signature";
+      addLogsMessage(signed, succMessage, errMessage);
     }
   });
 
@@ -145,24 +137,22 @@ function main() : void {
 
       let { address } = await appEth.getAddress(path.value);
       let res = await appEth.signPersonalMessage(path.value, data);
-      let succMessage = formattedDate() + "&nbsp;" + "Personal message successfully signed. Signature - ";
+      let r = verifyMessSign(res, address, new TextEncoder().encode(data), recoverPersonalSignature);
+      let succMessage = formattedDate() + "&nbsp;" + "Personal message successfully signed. Signature - " + r.signature;
       let errMessage = formattedDate() + "&nbsp;" + "Error. Invalid signature";
-
-      verifyMessSign(res, succMessage, errMessage, address, new TextEncoder().encode(data), recoverPersonalSignature);
+      addLogsMessage(r.signed, succMessage, errMessage);
     }
   });
 
   eip712SignBtn.addEventListener("click", async() => {
-    let message: string;
-
     if(appEth) {
       let eip712MessJSON = JSON.parse(signData.value);
       let res = await appEth.signEIP712Message(path.value, eip712MessJSON);
-      let succMessage = formattedDate() + "&nbsp;" + "EIP712 Message successfully signed. Signature - ";
-      let errMessage = formattedDate() + "&nbsp;" + "Error. Invalid signature";
       let { address } = await appEth.getAddress(path.value);
-
-      verifyMessSign(res, succMessage, errMessage, address, eip712MessJSON, recoverTypedSignature);
+      let r = verifyMessSign(res, address, eip712MessJSON, recoverTypedSignature);
+      let succMessage = formattedDate() + "&nbsp;" + "EIP712 Message successfully signed. Signature - " + r.signature;
+      let errMessage = formattedDate() + "&nbsp;" + "Error. Invalid signature";
+      addLogsMessage(r.signed, succMessage, errMessage);
     }
   });
 
