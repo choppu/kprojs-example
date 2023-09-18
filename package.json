@@ -1,14 +1,16 @@
 {
   "name": "kprojs-example",
   "version": "1.0.0",
-  "description": "",
+  "description": "Test page for KProJS and KProJS WebHID",
   "source": "src/index.html",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build",
-    "start": "parcel"
+    "start": "parcel",
+    "predeploy": "rm -rf dist && parcel build --no-source-maps --public-url ./",
+    "deploy": "gh-pages -d dist"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +19,7 @@
     "@noble/secp256k1": "^2.0.0",
     "core-js": "^3.32.1",
     "js-sha3": "^0.9.1",
-    "kprojs": "file:../kprojs",
+    "kprojs": "github:choppu/kprojs",
     "kprojs-web-hid": "file:../kprojs-web-hid"
   },
   "devDependencies": {
