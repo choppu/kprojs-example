@@ -177,9 +177,10 @@ function main() : void {
 
     if(f && appEth) {
       let firmware = await readFile(f);
-      console.log(firmware);
 
       try {
+        message = formattedDate() + "&nbsp;" + "Updating firmware...";
+        addMessage(message, logsContainer);
         await appEth.loadFirmware(firmware);
         message = formattedDate() + "&nbsp;" + "Firmware updated successfuly"
         addMessage(message, logsContainer);
@@ -188,7 +189,7 @@ function main() : void {
         addMessage(message, logsContainer);
       }
     } else {
-      message = formattedDate() + "&nbsp;" + "Error: Keycard Pro is disconnected or no firmware file found";
+      message = f ? (formattedDate() + "&nbsp;" + "Error. Keycard Pro is disconnected") : (formattedDate() + "&nbsp;" + "No firmware file found");
       addMessage(message, logsContainer);
     }
 
