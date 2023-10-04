@@ -14,6 +14,8 @@ const signData = document.getElementById("sign-data") as HTMLTextAreaElement;
 const eip712SignBtn = document.getElementById("btn-sign-eip712") as HTMLButtonElement;
 const pMessSignBtn = document.getElementById("btn-sign-message") as HTMLButtonElement;
 const path = document.getElementById("sign-path") as HTMLInputElement;
+const fw = document.getElementById("load-fw") as HTMLInputElement;
+const loadFWBtn = document.getElementById("btn-load-fw") as HTMLButtonElement;
 
 let data: string;
 let date: number;
@@ -78,6 +80,16 @@ function verifyMessSign(s: {v: number, r: string, s: string}, address: string, m
   return {signature: signature, signed: recAddress == address.toLowerCase()};
 }
 
+async function readFile(file: Blob) : Promise<ArrayBuffer> {
+  let res = await new Promise((resolve) => {
+    let fileReader = new FileReader();
+    fileReader.onload = () => resolve(fileReader.result);
+    fileReader.readAsArrayBuffer(file);
+  });
+
+  return res as ArrayBuffer;
+}
+
 function main() : void {
   let transport: any;
   let appEth: any;
@@ -91,7 +103,9 @@ function main() : void {
       txSignBtn.disabled = false;
       eip712SignBtn.disabled = false;
       pMessSignBtn.disabled = false;
+      loadFWBtn.disabled = false;
       connectBtn.disabled = true;
+
 
       let message = formattedDate() + "&nbsp;" + "KPro Wallet connected";
       addMessage(message, logsContainer);
@@ -156,6 +170,28 @@ function main() : void {
     }
   });
 
+  loadFWBtn.addEventListener("click", async() => {
+    const f = fw.files[0];
+    let message: string;
+
+    if(f && appEth) {
+      let firmware = await readFile(f);
+
+      try {
+        await appEth.loadFirmware(firmware);
+        message = formattedDate() + "&nbsp;" + "Firmware updated successfuly"
+        addMessage(message, logsContainer);
+      } catch (e) {
+        message = formattedDate() + "&nbsp;" + "Error: " + e;
+        addMessage(message, logsContainer);
+      }
+    } else {
+      message = formattedDate() + "&nbsp;" + "Error: Keycard Pro is disconnected or no firmware file found";
+      addMessage(message, logsContainer);
+    }
+
+  });
+
   disconnectBtn.addEventListener("click", async () => {
     if(transport) {
       await transport.close();
@@ -165,6 +201,7 @@ function main() : void {
       txSignBtn.disabled = true;
       eip712SignBtn.disabled = true;
       pMessSignBtn.disabled = true;
+      loadFWBtn.disabled = true;
       connectBtn.disabled = false;
 
       let message = formattedDate() + "&nbsp;" + "KPro Wallet disconnected"

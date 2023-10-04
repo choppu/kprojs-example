@@ -228,7 +228,7 @@ body {
 .kprojs_example__header {
   font-size: 1.5em;
   font-weight: bold;
-  padding: .8em 0 .5em 0;
+  padding: .6em 0 .5em 0;
 }
 
 .kprojs_example_btns-sign {
@@ -238,7 +238,7 @@ body {
 }
 
 .kprojs_example__input-field-container {
-  margin-bottom: 2em;
+  margin-bottom: 1.5em;
 }
 
 .kprojs_example__input-label {
@@ -282,4 +282,45 @@ body {
 
 .kprojs_example__button-sign-container {
   text-align: center;
+}
+
+.kprojs_example__load-firmware-container {
+  width: 95%;
+  margin: 1.5em auto;
+  padding: 1.5em 0;
+  box-sizing: border-box;
+  border-top: solid white 1px;
+}
+
+input[type=file] {
+  font-size: 1.2em;
+  font-weight: 400;
+  width: 50%;
+  max-width: 100%;
+  color: #444;
+  padding: 5px;
+  background: #fff;
+  border-radius: 10px;
+  border: none;
+  display: block;
+  box-sizing: border-box;
+  margin: 1em 0 1.8em 0;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  font-family: "Cutive Mono", monospace;
+}
+
+input[type=file]::file-selector-button {
+  font-family: "Cutive Mono", monospace;
+  margin-right: 20px;
+  border: none;
+  background: rgb(55, 50, 65);
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: background .2s ease-in-out;
+}
+
+input[type=file]::file-selector-button:hover {
+  background: rgb(44, 37, 58);
 }
