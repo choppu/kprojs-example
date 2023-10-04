@@ -16,6 +16,7 @@
     "@noble/secp256k1": "^2.0.0",
     "core-js": "^3.32.1",
     "gh-pages": "^6.0.0",
+    "import": "^0.0.6",
     "js-sha3": "^0.9.1",
     "kprojs": "github:choppu/kprojs",
     "kprojs-web-hid": "file:../kprojs-web-hid"
