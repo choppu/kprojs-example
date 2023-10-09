@@ -3,6 +3,8 @@ import TransportWebHID from "kprojs-web-hid";
 import * as secp from '@noble/secp256k1';
 import { keccak256 } from 'js-sha3';
 import { recoverPersonalSignature, recoverTypedSignature } from '@metamask/eth-sig-util';
+import Transport from "kprojs/lib/transport";
+import Eth from "kprojs/lib/eth";
 
 
 const connectBtn = document.getElementById("btn-connect") as HTMLButtonElement;
@@ -65,9 +67,9 @@ function getV(v: number) : number {
   }
 }
 
-function verifySign(s: {v: number, r: string, s: string}, message: string, pubKey: string) : {signature: string, signed: boolean} {
+function verifySign(s: {v: string, r: string, s: string}, message: string, pubKey: string) : {signature: string, signed: boolean} {
   let messageHash = keccak256(fromHex(message));
-  let sigV = getV(s.v);
+  let sigV = getV(Number(s.v));
   let signature = new secp.Signature(BigInt("0x" + s.r), BigInt("0x" + s.s), sigV);
 
   return {signature: signature.toCompactHex(), signed: secp.verify(signature, messageHash, pubKey.toLowerCase())};
@@ -92,8 +94,9 @@ async function readFile(file: Blob) : Promise<ArrayBuffer> {
 }
 
 function main() : void {
-  let transport: any;
-  let appEth: any;
+  let transport: Transport;
+  let appEth: Eth;
+
   connectBtn.addEventListener("click", async () => {
     try {
       transport = await TransportWebHID.create();
