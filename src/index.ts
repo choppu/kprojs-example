@@ -18,7 +18,9 @@ const eip712SignBtn = document.getElementById("btn-sign-eip712") as HTMLButtonEl
 const pMessSignBtn = document.getElementById("btn-sign-message") as HTMLButtonElement;
 const path = document.getElementById("sign-path") as HTMLInputElement;
 const fw = document.getElementById("load-fw") as HTMLInputElement;
+const db = document.getElementById("load-erc20") as HTMLInputElement;
 const loadFWBtn = document.getElementById("btn-load-fw") as HTMLButtonElement;
+const loadERC20Btn = document.getElementById("btn-load-erc20") as HTMLButtonElement;
 
 let data: string;
 let date: number;
@@ -108,6 +110,7 @@ function main() : void {
       eip712SignBtn.disabled = false;
       pMessSignBtn.disabled = false;
       loadFWBtn.disabled = false;
+      loadERC20Btn.disabled = false;
       connectBtn.disabled = true;
 
 
@@ -195,7 +198,29 @@ function main() : void {
       message = f ? (formattedDate() + "&nbsp;" + "Error. Keycard Pro is disconnected") : (formattedDate() + "&nbsp;" + "No firmware file found");
       addMessage(message, logsContainer);
     }
+  });
 
+  loadERC20Btn.addEventListener("click", async() => {
+    const dbF = db.files[0];
+    let message: string;
+
+    if(dbF && appEth) {
+      let database = await readFile(dbF);
+
+      try {
+        message = formattedDate() + "&nbsp;" + "Updating ERC20 database...";
+        addMessage(message, logsContainer);
+        await appEth.loadERC20DB(database);
+        message = formattedDate() + "&nbsp;" + "ERC20 DB updated successfuly"
+        addMessage(message, logsContainer);
+      } catch(e) {
+        message = formattedDate() + "&nbsp;" + "Error: " + e;
+        addMessage(message, logsContainer);
+      }
+    } else {
+      message = dbF ? (formattedDate() + "&nbsp;" + "Error. Keycard Pro is disconnected") : (formattedDate() + "&nbsp;" + "No ERC20 DB file found");
+      addMessage(message, logsContainer);
+    }
   });
 
   disconnectBtn.addEventListener("click", async () => {
@@ -208,6 +233,7 @@ function main() : void {
       eip712SignBtn.disabled = true;
       pMessSignBtn.disabled = true;
       loadFWBtn.disabled = true;
+      loadERC20Btn.disabled = true;
       connectBtn.disabled = false;
 
       let message = formattedDate() + "&nbsp;" + "KPro Wallet disconnected"

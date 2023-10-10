@@ -180,7 +180,8 @@ body {
   float: right;
   width: 48.5%;
   background: rgb(15, 17, 22);
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
   padding: 1% 1.5%;
   box-sizing: border-box;
   font-size: 1.1em;
@@ -188,6 +189,10 @@ body {
   overflow: scroll;
   white-space: normal;
   word-wrap: break-word;
+  position: fixed;
+  bottom: 0;
+  top: 0;
+  right: 0;
 }
 
 .kprojs_example_btns-container {
@@ -284,7 +289,7 @@ body {
   text-align: center;
 }
 
-.kprojs_example__load-firmware-container {
+.kprojs_example__load-firmware-container, .kprojs_example__load-erc20-container {
   width: 95%;
   margin: 1.5em auto;
   padding: 1.5em 0;
