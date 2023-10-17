@@ -3,7 +3,7 @@ import TransportWebHID from "kprojs-web-hid";
 import * as secp from '@noble/secp256k1';
 import { keccak256 } from 'js-sha3';
 import { recoverPersonalSignature, recoverTypedSignature } from '@metamask/eth-sig-util';
-import Transport from "kprojs/lib/transport";
+import Transport, { StatusCodes } from "kprojs/lib/transport";
 import Eth from "kprojs/lib/eth";
 
 
@@ -191,7 +191,8 @@ function main() : void {
         message = formattedDate() + "&nbsp;" + "Firmware updated successfuly"
         addMessage(message, logsContainer);
       } catch(e) {
-        message = formattedDate() + "&nbsp;" + "Error: " + e;
+        let err = e.statusCode == StatusCodes.SECURITY_STATUS_NOT_SATISFIED ? "Firmware update canceled by user" : e;
+        message = formattedDate() + "&nbsp;" + "Error: " + err;
         addMessage(message, logsContainer);
       }
     } else {
@@ -214,7 +215,8 @@ function main() : void {
         message = formattedDate() + "&nbsp;" + "ERC20 DB updated successfuly"
         addMessage(message, logsContainer);
       } catch(e) {
-        message = formattedDate() + "&nbsp;" + "Error: " + e;
+        let err = e.statusCode == StatusCodes.SECURITY_STATUS_NOT_SATISFIED ? "Firmware update canceled by user" : e;
+        message = formattedDate() + "&nbsp;" + "Error: " + err;
         addMessage(message, logsContainer);
       }
     } else {
