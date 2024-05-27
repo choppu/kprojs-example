@@ -133,8 +133,8 @@ function main() : void {
   getConfBtn.addEventListener("click", async () => {
     if(appEth) {
       date = Date.now();
-      const { fwVersion, erc20Version } = await appEth.getAppConfiguration();
-      let message = formattedDate() + "&nbsp;" + "Firmware version - " + fwVersion + ", ERC20/Chain DB version - " + erc20Version;
+      const { fwVersion, erc20Version, serialNumber, publicKey } = await appEth.getAppConfiguration();
+      let message = formattedDate() + "&nbsp;" + "Firmware version - " + fwVersion + ", ERC20/Chain DB version - " + erc20Version + ", Serial number - 0x" + serialNumber + ", Public key - 0x" + publicKey;
       addMessage(message, logsContainer);
     }
   });

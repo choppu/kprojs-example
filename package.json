@@ -19,7 +19,7 @@
     "import": "^0.0.6",
     "js-sha3": "^0.9.1",
     "kprojs": "github:choppu/kprojs",
-    "kprojs-web-hid": "file:../kprojs-web-hid"
+    "kprojs-web-hid": "github:choppu/kprojs-web-hid"
   },
   "devDependencies": {
     "assert": "^2.1.0",
